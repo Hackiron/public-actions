@@ -1,0 +1,61 @@
+name: 'Netbird connect'
+description: 'Connect your workflow to your Netbird network'
+inputs:
+  setup-key:
+    description: 'Setup key obtained from the Management Service Dashboard (used to register peer)'
+    required: true
+  hostname:
+    description: 'Sets a custom hostname that is visible from Netbird Dashboard'
+    required: false
+    default: ''
+  management-url:
+    description: 'Management Service URL [http|https]://[host]:[port] (default "https://api.netbird.io:443")'
+    required: false
+    default: 'https://api.netbird.io:443'
+  args:
+    description: 'Optional additional arguments to `netbird up`'
+    required: false
+    default: ''
+branding:
+  icon: 'bar-chart'
+  color: 'orange'
+runs:
+  using: 'composite'
+  steps:
+    - name: Check Runner OS
+      if: ${{ runner.os != 'Linux' }}
+      shell: bash
+      run: |
+        echo "::error title=error hint::Support Linux Only"
+        exit 1
+    - name: Download Netbird
+      shell: bash
+      env:
+        USE_BIN_INSTALL: 'true'
+      run: curl -fsSL https://pkgs.netbird.io/install.sh | sh
+    - name: Connect to Netbird
+      shell: bash
+      env:
+        SETUP_KEY: ${{ inputs.setup-key }}
+        ADDITIONAL_ARGS: ${{ inputs.args }}
+        NB_HOSTNAME: ${{ inputs.hostname }}
+        MANAGEMENT_URL: ${{ inputs.management-url }}
+      run: |
+        if [ -z "${NB_HOSTNAME}" ]; then
+          NB_HOSTNAME="github-$(cat /etc/hostname)"
+        fi
+        sudo netbird up --setup-key="${SETUP_KEY}" --hostname="${NB_HOSTNAME}" --management-url="${MANAGEMENT_URL}" ${ADDITIONAL_ARGS}
+    - name: Wait for Netbird to connect
+      shell: bash
+      run: |
+        ATTEMPTS=0
+        MAX_ATTEMPTS=60
+        while [ -z "$(sudo netbird status | grep 'Management: Connected')" ]; do
+          if [ "${ATTEMPTS}" -ge "${MAX_ATTEMPTS}" ]; then
+            echo "::error::Timed out waiting for Netbird to connect after $((MAX_ATTEMPTS * 5)) seconds"
+            exit 1
+          fi
+          echo "Waiting for Netbird to connect..."
+          sleep 5
+          ATTEMPTS=$((ATTEMPTS + 1))
+        done
