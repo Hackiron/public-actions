@@ -11,7 +11,7 @@ Connects a workflow runner to a [Netbird](https://netbird.io) network.
 
 ```yaml
 - name: Join Netbird network
-  uses: ./.github/actions/netbird-connect
+  uses: hackiron/public-actions/netbird-connect
   with:
     setup-key: ${{ secrets.NETBIRD_SETUP_KEY }}
     hostname: 'hostname'
