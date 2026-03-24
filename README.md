@@ -10,9 +10,12 @@ Connects a workflow runner to a [Netbird](https://netbird.io) network.
 **Usage:**
 
 ```yaml
-- uses: Hackiron/actions/netbird-connect@main
+- name: Join Netbird network
+  uses: ./.github/actions/netbird-connect
   with:
     setup-key: ${{ secrets.NETBIRD_SETUP_KEY }}
+    hostname: 'hostname'
+    management-url: 'https://management-url.com'
 ```
 
 **Inputs:**
