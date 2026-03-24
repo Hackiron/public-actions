@@ -14,7 +14,7 @@ Connects a workflow runner to a [Netbird](https://netbird.io) network.
   uses: hackiron/public-actions/netbird-connect
   with:
     setup-key: ${{ secrets.NETBIRD_SETUP_KEY }}
-    hostname: 'hostname'
+    hostname: 'name of the host'
     management-url: 'https://management-url.com'
 ```
 
